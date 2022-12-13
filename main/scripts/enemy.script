@@ -1,0 +1,16 @@
+local DAMAGE = 1
+local RESPONSE = "trigger_response"
+local ENEMY = 1
+
+function init(self)
+	go.animate(go.get_id(), "position.x", go.PLAYBACK_LOOP_PINGPONG, 2, go.EASING_LINEAR, 2)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash(RESPONSE) and message.enter then
+		msg.post("hud#main", "subtract_damage", {amount = DAMAGE})
+
+		msg.post("enemy_factory#enemy_factory1", "subtract_enemy_counter", {amount = ENEMY})
+		go.delete()
+	end
+end

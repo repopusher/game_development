@@ -1,0 +1,19 @@
+[bootstrap]
+main_collection = /main/main.collectionc
+
+[script]
+shared_state = 1
+
+[android]
+input_method = HiddenInputField
+
+[project]
+title = Fishing
+
+[graphics]
+default_texture_min_filter = nearest
+default_texture_mag_filter = nearest
+
+[tilemap]
+max_tile_count = 4600
+
