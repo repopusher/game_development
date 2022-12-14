@@ -15,5 +15,5 @@ default_texture_min_filter = nearest
 default_texture_mag_filter = nearest
 
 [tilemap]
-max_tile_count = 4600
+max_tile_count = 5000
 

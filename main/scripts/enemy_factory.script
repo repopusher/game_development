@@ -1,7 +1,4 @@
 local FREQUENCY = 0.5
-local bonus_prob = 0.2
-local min_y = 60
-local max_y = 600
 local PLAYER_REFERENCE = "player_collection/player#player"
 local COUNTER_RESPONSE = "subtract_enemy_counter"
 local FACTORY_REFERENCE = "#enemy_factory"
@@ -9,7 +6,8 @@ local ENEMY_COUNTER = 0
 local ENEMIES_ALLOWED = 0
 local LEFT_WALL = 20
 local RIGHT_WALL = 480
-local Y_TOP = 280
+-- Bottom of the level
+local Y_BOTTOM = -535
 
 
 
@@ -46,26 +44,37 @@ function determine_enemy_spawn_position(enemy_position, player_position)
 	local screen_edge_down = player_position.y - 100
 
 -- if random y is not within the y screen boundaries then the random x is free to be any where on the x axis as it won't appear on the screen
-	if random_y_spawn < screen_edge_down or random_y_spawn > screen_edge_up then
-		enemy_position.x = random_x_spawn
-		enemy_position.y = random_y_spawn
-		
+	if (random_y_spawn < screen_edge_down or random_y_spawn > screen_edge_up) and spawn_distance_down > Y_BOTTOM then
+			enemy_position.x = random_x_spawn
+			enemy_position.y = random_y_spawn
 	-- if it is within the y screen boundaries
-	else
+	elseif (random_y_spawn > screen_edge_down and random_y_spawn < screen_edge_up) and spawn_distance_down > Y_BOTTOM then
 		-- and the random x is outside of the x screen boundaries, it is allowed to spawn
 		if random_x_spawn < screen_edge_left or random_x_spawn > screen_edge_right then
 			enemy_position.x = random_x_spawn
 			enemy_position.y = random_y_spawn
 		-- else, the random x is inside the x screen boundaries, so must be adjusted to be outside of the screen on the x axis.
 		else
-			--Adjust will prioritise downward in the case that the random coordinates are inside player screen
-			local offset_y = 0
-			if random_y_spawn < 0 then
-				offset_y = random_y_spawn + screen_edge_down
+			--Adjust will prioritise spawns to sides in the case that the random coordinates are inside player screen
+			local offset_x = screen_edge_right - random_x_spawn 
+			enemy_position.x = offset_x
+			enemy_position.y = random_y_spawn
+		end
+	else
+		if random_y_spawn >= screen_edge_up then
+			enemy_position.x = player_position.x
+			enemy_position.y = player_position.y
+		elseif random_y_spawn > Y_BOTTOM and random_y_spawn < screen_edge_up then
+			if random_x_spawn < screen_edge_left or random_x_spawn > screen_edge_right then
+				enemy_position.x = random_x_spawn
+				enemy_position.y = random_y_spawn
 			else
-				offset_y = random_y_spawn - screen_edge_down
-			end	
-			enemy_position.x = random_x_spawn
+				--Adjust will prioritise spawns to sides in the case that the random coordinates are inside player screen
+				local offset_x = screen_edge_right - random_x_spawn 
+				enemy_position.x = offset_x
+			end
+		else
+			local offset_y = spawn_distance_down - Y_BOTTOM
 			enemy_position.y = offset_y
 		end
 	end		
