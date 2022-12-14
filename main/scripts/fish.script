@@ -1,0 +1,16 @@
+local MONEY = 1
+local RESPONSE = "trigger_response"
+
+function init(self)
+	go.animate(go.get_id(), "position.x", go.PLAYBACK_LOOP_PINGPONG, 2, go.EASING_LINEAR, 2)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash(RESPONSE) and message.enter then
+		msg.post("hud#main", "update_fish_capacity", {amount = 1, money = 50})
+
+		msg.post("player_collection/player#player", "update_fish_capacity", {amount = 1, money = 50})
+		msg.post("fish_factory#fish_factory1", "subtract_fish_counter")
+		go.delete()
+	end
+end

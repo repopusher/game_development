@@ -10,6 +10,7 @@ local GRAVITY = -100
 
 -- pre-hashing ids improves performance
 local CONTACT_POINT_RESPONSE = hash("contact_point_response")
+local UPDATE_FISH_AND_MONEY_RESPONSE = hash("update_fish_capacity")
 local HEALTH_RESPONSE = hash("subtract_enemy_counter")
 local CAMERA_REFERENCE = "set_view_projection"
 
@@ -27,7 +28,7 @@ function init(self)
 	msg.post(".", "acquire_input_focus")
 	msg.post("camera", "acquire_camera_focus")
 	-- Have to tell the camera to use fixed projection instead of default so you can zoom in. Should be in level script.
-	msg.post("@render:", "use_fixed_projection", { zoom = 2.5, near = -30, far = 30 })	
+	msg.post("@render:", "use_fixed_projection", { zoom = 3.8, near = -30, far = 30 })	
 
 	-- spawn position
 	self.spawn_position = go.get_position()
@@ -41,6 +42,9 @@ function init(self)
 	self.anim = nil
 	self.ground_contact = true
 	self.previous_ground_contact = true	
+
+	self.money = 0
+	self.current_hook_capacity = 0
 end
 
 -- clamp a number between a min and max value
@@ -89,15 +93,6 @@ local function player_movement(self, direction, axis)
 		self.velocity.x = MAX_OCEAN_SPEED * direction
 	elseif axis == "y" then
 		self.velocity.y = MAX_OCEAN_SPEED * direction
-	end
-end
-
--- builtins/render/default.render_script
---
-function on_message(self, message_id, message)
-	if message_id == hash(CAMERA_REFERENCE) then
-		self.view = message.view                    -- [1]
-		self.projection = message.projection
 	end
 end
 
@@ -160,11 +155,23 @@ function on_message(self, message_id, message, sender)
 		if message.group == WALL then
 			wall_collision_handler(self, message.normal, message.distance)
 		end
+		
 	elseif message_id == HEALTH_RESPONSE then
 		HP = HP - message.amount
 		if HP == 0 then
 			death_handler()
 		end
+			
+	elseif message_id == hash(CAMERA_REFERENCE) then
+		self.view = message.view                    -- [1]
+		self.projection = message.projection
+
+	elseif message_id == UPDATE_FISH_AND_MONEY_RESPONSE then
+		self.money = self.money + message.money
+		self.current_hook_capacity = self.current_hook_capacity + 1
+
+		print(self.money)
+		print(self.current_hook_capacity)
 	end
 end
 	

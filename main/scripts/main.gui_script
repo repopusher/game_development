@@ -1,10 +1,16 @@
 local SUBTRACT_DAMAGE_RESPONSE = hash("subtract_damage")
 local GAME_OVER_RESPONSE = hash("game_over")
+local UPDATE_FISH_CAPACITY_RESPONSE = hash("update_fish_capacity")
+local UPDATE_MONEY_RESPONSE = hash("update_money")
 
 function init(self)
+	self.money = 0
+	self.current_hook_capacity = 0
 	self.health = 3
 	self.health_node = gui.get_node("health")
-	self.game_over_node = gui.get_node("game_over")	
+	self.game_over_node = gui.get_node("game_over")
+	self.money_counter_node = gui.get_node("money_counter")
+	self.fish_capacity_node = gui.get_node("fish_capacity")
 end
 
 function final(self)
@@ -29,6 +35,14 @@ function on_message(self, message_id, message, sender)
 		-- gui.set_visible(game_over_node, true)
 		gui.set_color(self.game_over_node, vmath.vector4(1,1,1,1))
 		gui.animate(self.game_over_node, "color.w", 0, gui.EASING_LINEAR, 5)
+	elseif message_id == UPDATE_FISH_CAPACITY_RESPONSE then
+		self.money = self.money + message.money
+		self.current_hook_capacity = self.current_hook_capacity + 1
+
+		local new_money = tostring(self.money).."$"
+		
+		gui.set_text(self.money_counter_node, new_money)
+		gui.set_text(self.fish_capacity_node, tostring(self.current_hook_capacity).."/5")
 	end
 end
 
