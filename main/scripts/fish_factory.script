@@ -1,0 +1,93 @@
+local FREQUENCY = 0.5
+local bonus_prob = 0.2
+local min_y = 60
+local max_y = 600
+local PLAYER_REFERENCE = "player_collection/player#player"
+local COUNTER_RESPONSE = "subtract_fish_counter"
+local FACTORY_REFERENCE = "#fish_factory"
+local FISH_COUNTER = 0
+local FISH_ALLOWED = 7
+local LEFT_WALL = 20
+local RIGHT_WALL = 480
+local Y_TOP = 280
+
+function init(self)
+	self.timer = 1/FREQUENCY
+	-- make the game deterministic
+	math.randomseed(0)
+end
+
+function determine_fish_spawn_position(fish_position, player_position)
+	local spawn_distance_up = player_position.y + 200
+	local spawn_distance_down = player_position.y - 200
+
+	random_x_spawn = math.random(LEFT_WALL, RIGHT_WALL)
+	random_y_spawn = math.random(spawn_distance_down, spawn_distance_up)
+
+	local screen_edge_right = player_position.x + 150
+	local screen_edge_left = player_position.x -150
+	local screen_edge_up = player_position.y + 100
+	local screen_edge_down = player_position.y - 100
+
+	-- if random y is not within the y screen boundaries then the random x is free to be any where on the x axis as it won't appear on the screen
+	if random_y_spawn < screen_edge_down or random_y_spawn > screen_edge_up then
+		fish_position.x = random_x_spawn
+		fish_position.y = random_y_spawn
+
+		-- if it is within the y screen boundaries
+	else
+		-- and the random x is outside of the x screen boundaries, it is allowed to spawn
+		if random_x_spawn < screen_edge_left or random_x_spawn > screen_edge_right then
+			fish_position.x = random_x_spawn
+			fish_position.y = random_y_spawn
+			-- else, the random x is inside the x screen boundaries, so must be adjusted to be outside of the screen on the x axis.
+		else
+			--Adjust will prioritise downward in the case that the random coordinates are inside player screen
+			local offset_y = 0
+			if random_y_spawn < 0 then
+				offset_y = random_y_spawn + screen_edge_down
+			else
+				offset_y = random_y_spawn - screen_edge_down
+			end	
+			fish_position.x = random_x_spawn
+			fish_position.y = offset_y
+		end
+	end		
+
+	return fish_position
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	self.timer = self.timer - dt
+
+	-- Potion of the player
+	local player_position = go.get_position(PLAYER_REFERENCE)
+
+	if self.timer <= 0 then
+		self.timer = 1/FREQUENCY
+		if FISH_COUNTER < FISH_ALLOWED then
+			-- Position of fish spawned
+			local fish_position = go.get_position()
+
+			fish_position = determine_fish_spawn_position(fish_position, player_position)
+
+			local component = FACTORY_REFERENCE
+
+			factory.create(component, fish_position)
+			FISH_COUNTER = FISH_COUNTER + 1
+		end
+	end
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash(COUNTER_RESPONSE) then
+		print("FISH FACTORY -1 FISH")
+		FISH_COUNTER = FISH_COUNTER - 1
+	end
+end

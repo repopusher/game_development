@@ -91,7 +91,6 @@ function update(self, dt)
 	
 	if self.timer <= 0 then
 		self.timer = 1/FREQUENCY
-		print(ENEMY_COUNTER)
 		if ENEMY_COUNTER < ENEMIES_ALLOWED then
 			-- Position of enemy spawned
 			local enemy_position = go.get_position()
@@ -108,7 +107,6 @@ end
 
 function on_message(self, message_id, message, sender)
 	if message_id == hash(COUNTER_RESPONSE) then
-		print("here")
 		ENEMY_COUNTER = ENEMY_COUNTER - 1
 	end
 end
