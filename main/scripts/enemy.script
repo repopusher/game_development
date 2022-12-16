@@ -3,7 +3,7 @@ local RESPONSE = "trigger_response"
 local ENEMY = 1
 
 function init(self)
-	go.animate(go.get_id(), "position.x", go.PLAYBACK_LOOP_PINGPONG, 2, go.EASING_LINEAR, 2)
+	go.animate(go.get_id(), "position.x", go.PLAYBACK_LOOP_PINGPONG, 1, go.EASING_LINEAR, 20)
 end
 
 function on_message(self, message_id, message, sender)
